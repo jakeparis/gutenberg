@@ -15,7 +15,7 @@ import {
  */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
-import { getBlobByURL, revokeBlobURL } from '@wordpress/blob';
+import { getBlobByURL, revokeBlobURL, isBlobURL } from '@wordpress/blob';
 import {
 	Button,
 	ButtonGroup,
@@ -70,6 +70,17 @@ export const pickRelevantMediaFiles = ( image ) => {
 	};
 };
 
+/**
+ * Is the URL a temporary blob URL? A blob URL is one that is used temporarily
+ * while the image is being uploaded and will not have an id yet allocated.
+ *
+ * @param {number=} id The id of the image.
+ * @param {string=} url The url of the image.
+ *
+ * @return {boolean} Is the URL a Blob URL
+ */
+const isTemporaryBlobURL = ( id, url ) => ! id && isBlobURL( url );
+
 class ImageEdit extends Component {
 	constructor() {
 		super( ...arguments );
@@ -94,7 +105,7 @@ class ImageEdit extends Component {
 		const { attributes, setAttributes } = this.props;
 		const { id, url = '' } = attributes;
 
-		if ( ! id && url.indexOf( 'blob:' ) === 0 ) {
+		if ( isTemporaryBlobURL( id, url ) ) {
 			const file = getBlobByURL( url );
 
 			if ( file ) {
@@ -110,10 +121,10 @@ class ImageEdit extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { id: prevID, url: prevUrl = '' } = prevProps.attributes;
+		const { id: prevID, url: prevURL = '' } = prevProps.attributes;
 		const { id, url = '' } = this.props.attributes;
 
-		if ( ! prevID && prevUrl.indexOf( 'blob:' ) === 0 && id && url.indexOf( 'blob:' ) === -1 ) {
+		if ( isTemporaryBlobURL( prevID, prevURL ) && ! isTemporaryBlobURL( id, url ) ) {
 			revokeBlobURL( url );
 		}
 
@@ -275,7 +286,7 @@ class ImageEdit extends Component {
 		}
 
 		const classes = classnames( className, {
-			'is-transient': 0 === url.indexOf( 'blob:' ),
+			'is-transient': isBlobURL( url ),
 			'is-resized': !! width || !! height,
 			'is-focused': isSelected,
 		} );
