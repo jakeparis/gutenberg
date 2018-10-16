@@ -15,7 +15,7 @@ import { getColorObjectByColorValue } from '../colors';
 // translators: first %s: The type of color (e.g. background color), second %s: the color name or value (e.g. red or #ff0000)
 const colorIndicatorAriaLabel = __( '(current %s: %s)' );
 
-export function ColorPaletteControl( { label, value, onChange, colors, disableCustomColors } ) {
+export function ColorPaletteControl( { label, colors, value, ...colorPaletteProps } ) {
 	const colorObject = getColorObjectByColorValue( colors, value );
 	const colorName = colorObject && colorObject.name;
 	const ariaLabel = sprintf( colorIndicatorAriaLabel, label.toLowerCase(), colorName || value );
@@ -39,8 +39,7 @@ export function ColorPaletteControl( { label, value, onChange, colors, disableCu
 			<ColorPalette
 				className="editor-color-palette-control__color-palette"
 				value={ value }
-				onChange={ onChange }
-				disableCustomColors={ disableCustomColors }
+				{ ...colorPaletteProps }
 			/>
 		</BaseControl>
 	);
