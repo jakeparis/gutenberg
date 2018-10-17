@@ -34,3 +34,23 @@ Output uses the block's `render_callback` function, set when defining the block.
 
 The API endpoint for getting the output for ServerSideRender is `/wp/v2/block-renderer/:block`. It accepts any params, which are used as `attributes` for the block's `render_callback` method.
 
+## PHP Integration
+When using `ServerSideRender`, the block's attributes will need to be defined in the php `register_block_type()` function (in addition to the attribute definition in the javascript. For example: 
+
+```php
+register_block_type(
+	'core/archives',
+	array(
+		'attributes'      => array(
+			'align'             => array(
+				'type' => 'string',
+			),
+			'displayAsDropdown' => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+		)
+	),
+	'render_callback' => 'render_block_core_archives',
+);
+```
